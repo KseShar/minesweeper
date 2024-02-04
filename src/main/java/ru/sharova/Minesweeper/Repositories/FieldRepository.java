@@ -2,6 +2,7 @@ package ru.sharova.Minesweeper.Repositories;
 
 import lombok.Data;
 import org.springframework.stereotype.Repository;
+import ru.sharova.Minesweeper.util.InvalidDataException;
 
 import java.awt.*;
 import java.util.Random;
@@ -22,6 +23,7 @@ public class FieldRepository {
     //создание минного поля
     public Integer[][] createField(int width, int height, int mine) {
 
+        isCompleted = false;
         fieldInt = new Integer[width][height];
         field = new String[width][height];
         arrayNull = new boolean[width][height];
@@ -64,13 +66,16 @@ public class FieldRepository {
              for (int j = 0; j < height; j++) {
                  field[i][j] = " ";
             }
-
         return fieldInt;
     }
     //обработка хода
     public String[][] createFieldTurn(int widthTurn, int heightTurn) {
+        if (isCompleted)
+            throw new InvalidDataException("Игра окончена!");
+
+        if (!field[widthTurn][heightTurn].equals(" "))
+            throw new InvalidDataException("Ячейка уже открыта!");
         //создаем массив для response
-        if (!field[widthTurn][heightTurn].equals(" ")) return field;
         if (fieldInt[widthTurn][heightTurn] == -1) {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
@@ -120,6 +125,7 @@ public class FieldRepository {
                 }
             }
             isCompleted = true;
+            //game_id = " ";
         }
     }
     //открытие всех смежных нулей
@@ -158,83 +164,6 @@ public class FieldRepository {
         point[7] = new Point(x + 1, y - 1);
         return point;
     }
-    /*private void OpenButtons(int x, int y) {
-        Queue<Point> toOpen = new LinkedBlockingQueue<>();
-        toOpen.add(new Point(x, y));
-        field[x][y] = String.valueOf(fieldInt[x][y]);
-        while (!toOpen.isEmpty()) {
-            Point p = toOpen.poll();
-            x = p.x;
-            y = p.y;
-            for (int k = -1; k < 2; k++) {
-                for (int k1 = 1; k1 >= -1; k1--) {
-                    if (x + k >= 0 && x + k < width && y - k1 >= 0 && y - k1 < height)
-                        if (fieldInt[x + k][y - k1] == 0) {
-                            field[x + k][y - k1] = "0";
-                            toOpen.add(new Point(x + k, y - k1));
-                        }
-                }
-            }
-        }
-    }*/
-    /*public void recFun(int x, int y) {
-        field[x][y] = String.valueOf(fieldInt[x][y]);
-
-        Point[] arr = this.getArrPoint(x, y);
-        for (int k = 0; k < arr.length; k++) {
-            Point point = arr[k];
-            if (point.x >= 0 && point.x < width && point.y >= 0 && point.y < height && field[point.x][point.y] != " ") {
-                field[point.x][point.y] = String.valueOf(fieldInt[point.x][point.y]);
-                //if (fieldInt[point.x][point.y] == 0) {
-                    recFun(point.x, point.y);
-               // }
-            }
-            //else return;
-        }}
-        /*if (x < 0 || x >= width || y < 0 || y >= height || fieldInt[x][y] != 0) {
-            return;
-        }
-
-        //visited[x][y] = true;
-        int[] dx = {-1, 0, 1, -1, 1, -1, 0, 1};
-        int[] dy = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-        for (int i = 0; i < 8; i++) {
-            field[x + dx[i]][y + dy[i]] = "0";
-            recFun(x + dx[i], y + dy[i]);
-        }
-
-    }*/
-  /*  public void openZeroNeighbors(int x, int y, int[][] board, boolean[][] opened) {
-        Queue<int[]> queue = new LinkedList<>();
-        queue.add(new int[]{x, y});
-
-        while (!queue.isEmpty()) {
-            int[] cell = queue.poll();
-            int r = cell[0];
-            int c = cell[1];
-
-            if (r < 0 || r >= width || c < 0 || c >= height || field[r][c] != " "  || field[r][c] != "0") {
-                continue;
-            }
-
-            field[r][c] = String.valueOf(fieldInt[r][c]);
-
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
-                    if (i != 0 || j != 0) {
-                        int newRow = r + i;
-                        int newCol = c + j;
-                        if (newRow >= 0 && newRow < width && newCol >= 0 && newCol < height && field[newRow][newCol] == " ") {
-                            queue.add(new int[]{newRow, newCol});
-                        }
-                    }
-                }
-            }
-        }
-    }*/
-
-
 }
 
 
